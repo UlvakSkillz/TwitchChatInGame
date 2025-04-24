@@ -1,0 +1,69 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\austi\\source\\repos\\TwitchChatInGame\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{8C69F14F-E1B8-4D7F-95F4-38E64A7D6405}|TwitchChatInGame\\TwitchChatInGame.csproj|c:\\users\\austi\\source\\repos\\twitchchatingame\\twitchchatingame\\main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C69F14F-E1B8-4D7F-95F4-38E64A7D6405}|TwitchChatInGame\\TwitchChatInGame.csproj|solutionrelative:twitchchatingame\\main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8C69F14F-E1B8-4D7F-95F4-38E64A7D6405}|TwitchChatInGame\\TwitchChatInGame.csproj|c:\\users\\austi\\source\\repos\\twitchchatingame\\twitchchatingame\\twitchchathandle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C69F14F-E1B8-4D7F-95F4-38E64A7D6405}|TwitchChatInGame\\TwitchChatInGame.csproj|solutionrelative:twitchchatingame\\twitchchathandle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8C69F14F-E1B8-4D7F-95F4-38E64A7D6405}|TwitchChatInGame\\TwitchChatInGame.csproj|c:\\users\\austi\\source\\repos\\twitchchatingame\\twitchchatingame\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C69F14F-E1B8-4D7F-95F4-38E64A7D6405}|TwitchChatInGame\\TwitchChatInGame.csproj|solutionrelative:twitchchatingame\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AssemblyInfo.cs",
+              "DocumentMoniker": "C:\\Users\\austi\\source\\repos\\TwitchChatInGame\\TwitchChatInGame\\AssemblyInfo.cs",
+              "RelativeDocumentMoniker": "TwitchChatInGame\\AssemblyInfo.cs",
+              "ToolTip": "C:\\Users\\austi\\source\\repos\\TwitchChatInGame\\TwitchChatInGame\\AssemblyInfo.cs",
+              "RelativeToolTip": "TwitchChatInGame\\AssemblyInfo.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-06T01:58:13.844Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "TwitchChatHandle.cs",
+              "DocumentMoniker": "C:\\Users\\austi\\source\\repos\\TwitchChatInGame\\TwitchChatInGame\\TwitchChatHandle.cs",
+              "RelativeDocumentMoniker": "TwitchChatInGame\\TwitchChatHandle.cs",
+              "ToolTip": "C:\\Users\\austi\\source\\repos\\TwitchChatInGame\\TwitchChatInGame\\TwitchChatHandle.cs",
+              "RelativeToolTip": "TwitchChatInGame\\TwitchChatHandle.cs",
+              "ViewState": "AgIAAEEAAAAAAAAAAAAMwFUAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-06T04:56:44.789Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Main.cs",
+              "DocumentMoniker": "C:\\Users\\austi\\source\\repos\\TwitchChatInGame\\TwitchChatInGame\\Main.cs",
+              "RelativeDocumentMoniker": "TwitchChatInGame\\Main.cs",
+              "ToolTip": "C:\\Users\\austi\\source\\repos\\TwitchChatInGame\\TwitchChatInGame\\Main.cs*",
+              "RelativeToolTip": "TwitchChatInGame\\Main.cs*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-06T01:03:56.609Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

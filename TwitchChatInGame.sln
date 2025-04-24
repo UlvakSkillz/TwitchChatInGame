@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35919.96 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwitchChatInGame", "TwitchChatInGame\TwitchChatInGame.csproj", "{8C69F14F-E1B8-4D7F-95F4-38E64A7D6405}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8C69F14F-E1B8-4D7F-95F4-38E64A7D6405}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C69F14F-E1B8-4D7F-95F4-38E64A7D6405}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C69F14F-E1B8-4D7F-95F4-38E64A7D6405}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C69F14F-E1B8-4D7F-95F4-38E64A7D6405}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E6BBD2FA-30C6-40CB-87E4-DDF3EAEEF7FC}
+	EndGlobalSection
+EndGlobal
