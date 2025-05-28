@@ -100,6 +100,7 @@ namespace TwitchChatInGame
         private static Vector3 originalScale;
         private static List<GameObject> screenSpots = new List<GameObject>();
         private static GameObject screenSpotsParent;
+        private object processEntriesCoroutine, readEntriesCoroutine;
 
         [RegisterTypeInIl2Cpp]
         public class HandChecker : MonoBehaviour
@@ -189,7 +190,7 @@ namespace TwitchChatInGame
         public override void OnLateInitializeMelon()
         {
             TwitchChatInGame.ModName = "TwitchChatInGame";
-            TwitchChatInGame.ModVersion = "1.0.0";
+            TwitchChatInGame.ModVersion = BuildInfo.ModVersion;
             TwitchChatInGame.SetFolder("TwitchChatInGame");
             TwitchChatInGame.ModSaved += Save;
             UI.instance.UI_Initialized += UIInit;
@@ -211,6 +212,7 @@ namespace TwitchChatInGame
             TwitchChatInGame.AddToList("Chat Response Messages", true, 0, "Toggles The Bot Responding to Messages", new Tags { });
             TwitchChatInGame.AddToList("Block All Commands", false, 0, "Blocks all of the Chat Commands without needing to Toggle Each one Off", new Tags { });
             TwitchChatInGame.AddToList("Summon Commands CD", 3f, "Sets the Cooldown Time for !ball !pillar !cube !wall", new Tags { });
+            TwitchChatInGame.AddToList("Reconnect Twitch", false, 0, "Reconnects to Twitch (For Settings Setup or Bot Timeout)", new Tags { DoNotSave = true });
             commands.Add(new ChatCommand(new string[] { "!commands" }, () => {
                 string msg = responsesFileText[0];
                 string commandList = "";
@@ -376,8 +378,8 @@ namespace TwitchChatInGame
             if (fileFound)
             {
                 Log("Starting Twitch Bot");
-                MelonCoroutines.Start(ReadEntries());
-                MelonCoroutines.Start(ProcessEntries());
+                readEntriesCoroutine = MelonCoroutines.Start(ReadEntries());
+                processEntriesCoroutine = MelonCoroutines.Start(ProcessEntries());
             }
         }
 
@@ -425,6 +427,15 @@ namespace TwitchChatInGame
                 overrideRotation = Quaternion.identity;
                 overrideScale = Vector3.one;
             }
+            TwitchFileCheck();
+            if (!fileFound)
+            {
+                Log("File Info Not Set: " + $"{FILEPATH}\\{FILENAME}{Environment.NewLine}Please open File and edit to your info!");
+            }
+        }
+
+        private void TwitchFileCheck()
+        {
             if (!File.Exists($"{FILEPATH}\\{FILENAME}"))
             {
                 string defaultText = "oauth:InsertOauthTokenHere" + Environment.NewLine + "ReplaceWithChannelName" + Environment.NewLine + Environment.NewLine + "--------------------------------------------------" + Environment.NewLine + "First Line is 'oauth:' followed by your oauth code (no space) (https://twitchtokengenerator.com/)." + Environment.NewLine + "Second Line is your Channel Name so that the bot goes to the correct spot.";
@@ -435,10 +446,6 @@ namespace TwitchChatInGame
             if ((connectionInfo[0] == "oauth:InsertOauthTokenHere") || (connectionInfo[1] == "ReplaceWithChannelName")) { fileFound = false; }
             else { fileFound = true; }
             chat = new TwitchChatHandle(connectionInfo[0], connectionInfo[1]);
-            if (!fileFound)
-            {
-                Log("File Info Not Set: " + $"{FILEPATH}\\{FILENAME}{Environment.NewLine}Please open File and edit to your info!");
-            }
         }
 
         private static IEnumerator ToggleChat(bool active)
@@ -606,7 +613,14 @@ namespace TwitchChatInGame
             chatResponses = (bool)TwitchChatInGame.Settings[9].SavedValue;
             blockChatCommands = (bool)TwitchChatInGame.Settings[10].SavedValue;
             spawningCooldownTime = (float)TwitchChatInGame.Settings[11].SavedValue;
-            for (int i = 0; i < commands.Count; i++) { commands[i].running = (bool)TwitchChatInGame.Settings[i + 12].SavedValue; }
+            bool reconnect = (bool)TwitchChatInGame.Settings[12].SavedValue;
+            if (reconnect)
+            {
+                TwitchChatInGame.Settings[12].Value = false;
+                TwitchChatInGame.Settings[12].SavedValue = false;
+                MelonCoroutines.Start(ReconnectBot());
+            }
+            for (int i = 0; i < commands.Count; i++) { commands[i].running = (bool)TwitchChatInGame.Settings[i + 13].SavedValue; }
             if ((pastWhereToPinChat != whereToPinChat) && (whereToPinChat == 0)) { MelonCoroutines.Start(MoveScreenIfNeeded()); }
             if (chatBackgroundColor.Length < 6)
             {
@@ -630,6 +644,23 @@ namespace TwitchChatInGame
             foreach (string blacklistedName in blacklistedNamesRaw) { blacklistedNames.Add(blacklistedName.ToLower()); }
             string[] blacklistedWordsRaw = ReadFileText(FILEPATH, BLACKLISTEDWORDSFILENAME);
             foreach (string blacklistedWord in blacklistedWordsRaw) { blacklistedWords.Add(blacklistedWord.ToLower()); }
+        }
+
+        private IEnumerator ReconnectBot()
+        {
+            MelonCoroutines.Stop(processEntriesCoroutine);
+            MelonCoroutines.Stop(readEntriesCoroutine);
+            yield return new WaitForSeconds(1f);
+            chat.Dispose();
+            TwitchFileCheck();
+            if (fileFound)
+            {
+                while (chatEntries.Count > 0) { chatEntries.RemoveAt(0); }
+                Log("Restarting Twitch Bot");
+                readEntriesCoroutine = MelonCoroutines.Start(ReadEntries());
+                processEntriesCoroutine = MelonCoroutines.Start(ProcessEntries());
+            }
+            yield break;
         }
 
         private void LoadOverrideText()
@@ -735,6 +766,15 @@ namespace TwitchChatInGame
             {
                 if (chatEntries.Count > 0)
                 {
+                    try
+                    {
+                        if (chatEntries[0].Sender == "") { } //null check for on reconnect error
+                    }
+                    catch
+                    {
+                        chatEntries.RemoveAt(0);
+                        continue;
+                    }
                     Log(chatEntries[0].Sender + ": " + chatEntries[0].Message);
                     bool clear = true;
                     if (blacklistedNames.Contains(chatEntries[0].Sender.ToLower()))

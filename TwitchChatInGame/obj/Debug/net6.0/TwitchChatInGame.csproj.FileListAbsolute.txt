@@ -99,3 +99,4 @@ C:\Users\austi\source\repos\TwitchChatInGame\TwitchChatInGame\obj\Debug\net6.0\T
 C:\Users\austi\source\repos\TwitchChatInGame\TwitchChatInGame\obj\Debug\net6.0\ref\TwitchChatInGame.dll
 C:\Users\austi\source\repos\TwitchChatInGame\TwitchChatInGame\bin\Debug\net6.0\UnityEngine.Il2CppAssetBundleManager.dll
 C:\Users\austi\source\repos\TwitchChatInGame\TwitchChatInGame\bin\Debug\net6.0\UnityEngine.Il2CppAssetBundleManager.pdb
+C:\Users\austi\source\repos\TwitchChatInGame\TwitchChatInGame\obj\Debug\net6.0\TwitchChatInGame.sourcelink.json
