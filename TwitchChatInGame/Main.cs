@@ -20,7 +20,7 @@ namespace TwitchChatInGame
     public static class BuildInfo
     {
         public const string ModName = "TwitchChatInGame";
-        public const string ModVersion = "1.0.4";
+        public const string ModVersion = "1.1.0";
         public const string Author = "UlvakSkillz";
     }
 
@@ -173,17 +173,6 @@ namespace TwitchChatInGame
                 }
                 catch { return; }
                 handTouching = false;
-            }
-        }
-
-        public GameObject LoadAssetBundle(string bundleName, string objectName)
-        {
-            using (Stream bundleStream = MelonAssembly.Assembly.GetManifestResourceStream(bundleName))
-            {
-                byte[] bundleBytes = new byte[bundleStream.Length];
-                bundleStream.Read(bundleBytes, 0, bundleBytes.Length);
-                Il2CppAssetBundle bundle = Il2CppAssetBundleManager.LoadFromMemory(bundleBytes);
-                return UnityEngine.Object.Instantiate(bundle.LoadAsset<GameObject>(objectName));
             }
         }
 
@@ -370,7 +359,7 @@ namespace TwitchChatInGame
             }
             TwitchChatInGame.GetFromFile();
             Save();
-            screen = LoadAssetBundle("TwitchChatInGame.twitchchat", "Canvas");
+            screen = GameObject.Instantiate(Calls.LoadAssetFromStream<GameObject>(this, "TwitchChatInGame.twitchchat", "Canvas"));
             screen.name = "TwitchScreen";
             screen.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = "";
             screen.SetActive(false);
@@ -703,13 +692,13 @@ namespace TwitchChatInGame
                     newScale = new Vector3(0.005f, 0.005f, 0.005f);
                     break;
                 case 1: //Left Hand
-                    newParent = PlayerManager.instance.localPlayer.Controller.transform.GetChild(0).GetChild(1).GetChild(0).GetChild(4).GetChild(0).GetChild(1).GetChild(0).GetChild(0).GetChild(0);
+                    newParent = PlayerManager.instance.localPlayer.Controller.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(4).GetChild(0).GetChild(1).GetChild(0).GetChild(0).GetChild(0);
                     newPosition = new Vector3(0.1f, 0f, 0f);
                     newRotation = Quaternion.Euler(0f, 270f, 30f);
                     newScale = new Vector3(0.0005f, 0.0005f, 0.0005f);
                     break;
                 case 2: //Right Hand
-                    newParent = PlayerManager.instance.localPlayer.Controller.transform.GetChild(0).GetChild(1).GetChild(0).GetChild(4).GetChild(0).GetChild(2).GetChild(0).GetChild(0).GetChild(0);
+                    newParent = PlayerManager.instance.localPlayer.Controller.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(4).GetChild(0).GetChild(2).GetChild(0).GetChild(0).GetChild(0);
                     newPosition = new Vector3(-0.1f, 0f, 0f);
                     newRotation = Quaternion.Euler(0f, 270f, 30f);
                     newScale = new Vector3(-0.0005f, 0.0005f, 0.0005f);
@@ -857,7 +846,7 @@ namespace TwitchChatInGame
             chatToggles[0].layer = 22;
             Component.DestroyImmediate(chatToggles[0].GetComponent<MeshRenderer>());
             chatToggles[0].GetComponent<SphereCollider>().isTrigger = true;
-            chatToggles[0].transform.parent = PlayerManager.instance.localPlayer.Controller.transform.GetChild(0).GetChild(1).GetChild(0).GetChild(4).GetChild(0).GetChild(1).GetChild(0).GetChild(0).GetChild(0);
+            chatToggles[0].transform.parent = PlayerManager.instance.localPlayer.Controller.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(4).GetChild(0).GetChild(1).GetChild(0).GetChild(0).GetChild(0);
             chatToggles[0].transform.localPosition = new Vector3(0.03f, 0f, 0f);
             chatToggles[0].transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
             chatToggles[0].transform.localScale = new Vector3(0.075f, 0.075f, 0.075f);
@@ -867,7 +856,7 @@ namespace TwitchChatInGame
             chatToggles[1].layer = 22;
             Component.DestroyImmediate(chatToggles[1].GetComponent<MeshRenderer>());
             chatToggles[1].GetComponent<SphereCollider>().isTrigger = true;
-            chatToggles[1].transform.parent = PlayerManager.instance.localPlayer.Controller.transform.GetChild(0).GetChild(1).GetChild(0).GetChild(4).GetChild(0).GetChild(2).GetChild(0).GetChild(0).GetChild(0);
+            chatToggles[1].transform.parent = PlayerManager.instance.localPlayer.Controller.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(4).GetChild(0).GetChild(2).GetChild(0).GetChild(0).GetChild(0);
             chatToggles[1].transform.localPosition = new Vector3(-0.03f, 0f, 0f);
             chatToggles[1].transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
             chatToggles[1].transform.localScale = new Vector3(0.075f, 0.075f, 0.075f);
@@ -879,7 +868,7 @@ namespace TwitchChatInGame
 
         private static IEnumerator MoveScreenIfNeeded()
         {
-            Transform playerPos = PlayerManager.instance.localPlayer.Controller.gameObject.transform.GetChild(1).GetChild(0).GetChild(0);
+            Transform playerPos = PlayerManager.instance.localPlayer.Controller.gameObject.transform.GetChild(2).GetChild(0).GetChild(0);
             CreateScreenSpots();
             while ((activeScreen != null) && (whereToPinChat == 0))
             {
@@ -1054,7 +1043,7 @@ namespace TwitchChatInGame
 
         private static IEnumerator ScreenFade()
         {
-            Transform playerPos = PlayerManager.instance.localPlayer.Controller.gameObject.transform.GetChild(1).GetChild(0).GetChild(0);
+            Transform playerPos = PlayerManager.instance.localPlayer.Controller.gameObject.transform.GetChild(2).GetChild(0).GetChild(0);
             while (activeScreen != null)
             {
                 Vector3 forwardVector = playerPos.forward.normalized;
