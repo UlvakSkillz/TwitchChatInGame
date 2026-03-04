@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TwitchChatInGame")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b655593352f8538ad68a2f3f4d50cb6296d68786")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b3da1c631369c72f9bf3570b4754ce58b33c4689")]
 [assembly: System.Reflection.AssemblyProductAttribute("TwitchChatInGame")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TwitchChatInGame")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

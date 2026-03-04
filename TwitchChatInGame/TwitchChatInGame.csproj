@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -12,6 +12,10 @@
 
   <ItemGroup>
     <EmbeddedResource Include="twitchchat" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.70.0.3847" />
   </ItemGroup>
 
   <ItemGroup>
@@ -62,6 +66,9 @@
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>F:\SteamLibrary\steamapps\common\RUMBLE\MelonLoader\Il2CppAssemblies\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>F:\SteamLibrary\steamapps\common\RUMBLE\MelonLoader\Il2CppAssemblies\UnityEngine.UIModule.dll</HintPath>
     </Reference>
   </ItemGroup>
 

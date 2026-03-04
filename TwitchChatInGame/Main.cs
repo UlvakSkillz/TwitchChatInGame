@@ -1,26 +1,25 @@
-﻿using MelonLoader;
-using TwitchTools;
-using UnityEngine;
-using System.Collections;
-using RumbleModUI;
-using Il2CppRUMBLE.Managers;
+﻿using Il2CppPhoton.Pun;
 using Il2CppRUMBLE.Combat.ShiftStones;
-using Il2CppRUMBLE.Players;
-using RumbleModdingAPI;
+using Il2CppRUMBLE.Managers;
 using Il2CppRUMBLE.MoveSystem;
+using Il2CppRUMBLE.Players;
 using Il2CppRUMBLE.Pools;
 using Il2CppTMPro;
-using HarmonyLib;
+using MelonLoader;
+using RumbleModdingAPI.RMAPI;
+using RumbleModUI;
+using System.Collections;
 using System.Globalization;
+using TwitchTools;
+using UnityEngine;
 using UnityEngine.UI;
-using Il2CppPhoton.Pun;
 
 namespace TwitchChatInGame
 {
     public static class BuildInfo
     {
         public const string ModName = "TwitchChatInGame";
-        public const string ModVersion = "1.1.0";
+        public const string ModVersion = "1.3.1";
         public const string Author = "UlvakSkillz";
     }
 
@@ -101,6 +100,7 @@ namespace TwitchChatInGame
         private static List<GameObject> screenSpots = new List<GameObject>();
         private static GameObject screenSpotsParent;
         private object processEntriesCoroutine, readEntriesCoroutine;
+        private bool gymInit = false;
 
         [RegisterTypeInIl2Cpp]
         public class HandChecker : MonoBehaviour
@@ -185,6 +185,34 @@ namespace TwitchChatInGame
             UI.instance.UI_Initialized += UIInit;
             FileInitialization();
             ModInitialization();
+            Actions.onMapInitialized += MapInit;
+        }
+
+        private void MapInit(string map)
+        {
+            Time.timeScale = 1f;
+            currentScene = map;
+            if (map == "Gym" && !gymInit)
+            {
+                GameObject chat = GameObject.Instantiate(GameObjects.Gym.INTERACTABLES.BeltRack.RankStatusSlab.StatusForm.RankStatusFormCanvas.MountainRank.GetGameObject());
+                chat.SetActive(true);
+                chat.name = "chat";
+                chat.transform.parent = screen.transform;
+                chat.transform.localScale = Vector3.one;
+                TextMeshProUGUI tmpUGUI = chat.GetComponent<TextMeshProUGUI>();
+                tmpUGUI.text = "";
+                tmpUGUI.alignment = TextAlignmentOptions.TopLeft;
+                tmpUGUI.enableAutoSizing = true;
+                tmpUGUI.fontSize = 72f;
+                tmpUGUI.fontSizeMax = 72f;
+                tmpUGUI.fontSizeMin = 18f;
+                tmpUGUI.enableWordWrapping = true;
+                chat.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -25);
+                chat.GetComponent<RectTransform>().sizeDelta = new Vector2(450, 750);
+                chat.transform.localPosition = new Vector3(225, -400, 0);
+                gymInit = true;
+            }
+            MelonCoroutines.Start(CreateScreen());
         }
 
         private void ModInitialization()
@@ -230,7 +258,7 @@ namespace TwitchChatInGame
             commands.Add(new ChatCommand(new string[] { "!shiftstones" }, () => {
                 string msg = responsesFileText[2];
                 string shiftstones = "";
-                PlayerShiftstoneSystem pss = PlayerManager.instance.localPlayer.Controller.gameObject.GetComponent<PlayerShiftstoneSystem>();
+                PlayerShiftstoneSystem pss = PlayerManager.instance.localPlayer.Controller.PlayerShiftstones;
                 string[] stones = new string[2];
                 try { stones[0] = pss.shiftStoneSockets[0].assignedShifstone.StoneName; } catch { }
                 try { stones[1] = pss.shiftStoneSockets[1].assignedShifstone.StoneName; } catch { }
@@ -285,14 +313,14 @@ namespace TwitchChatInGame
                 string msg = responsesFileText[7];
                 List<int> bps = new List<int>();
                 string mods = "";
-                for (int i = 0; i < Calls.myMods.Count; i++)
+                for (int i = 0; i < Calls.Mods.getMyMods().Count; i++)
                 {
                     if (i != 0) { mods += ", "; }
-                    if (i == Calls.myMods.Count - 1)
+                    if (i == Calls.Mods.getMyMods().Count - 1)
                     {
                         mods += " and ";
                     }
-                    mods += Calls.myMods[i].ModName;
+                    mods += Calls.Mods.getMyMods()[i].ModName;
                 }
                 Write(msg.Replace("{mods}", mods));
                 return null;
@@ -359,9 +387,8 @@ namespace TwitchChatInGame
             }
             TwitchChatInGame.GetFromFile();
             Save();
-            screen = GameObject.Instantiate(Calls.LoadAssetFromStream<GameObject>(this, "TwitchChatInGame.twitchchat", "Canvas"));
+            screen = GameObject.Instantiate(AssetBundles.LoadAssetFromStream<GameObject>(this, "TwitchChatInGame.twitchchat", "Canvas"));
             screen.name = "TwitchScreen";
-            screen.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = "";
             screen.SetActive(false);
             GameObject.DontDestroyOnLoad(screen);
             if (fileFound)
@@ -537,7 +564,7 @@ namespace TwitchChatInGame
         {
             SpawnStruct("!ball", "SpawnBall");
             yield return new WaitForSeconds(1);
-            Transform playerPos = PlayerManager.instance.localPlayer.Controller.transform.GetChild(1).GetChild(0).GetChild(0);
+            Transform playerPos = PlayerManager.instance.localPlayer.Controller.transform.GetChild(2).GetChild(0).GetChild(0);
             Il2CppSystem.Collections.Generic.List<PooledMonoBehaviour> pooledStructuresBall = PoolManager.instance.availablePools[PoolManager.instance.GetPoolIndex("Ball")].PooledObjects;
             Il2CppSystem.Collections.Generic.List<PooledMonoBehaviour> pooledStructures = new Il2CppSystem.Collections.Generic.List<PooledMonoBehaviour>();
             for (int i = 0; i < pooledStructuresBall.Count; i++) if (pooledStructuresBall[i].transform.gameObject.active) { { pooledStructures.Add(pooledStructuresBall[i]); } }
@@ -564,12 +591,6 @@ namespace TwitchChatInGame
             UI.instance.AddMod(TwitchChatInGame);
         }
 
-        public override void OnSceneWasLoaded(int buildIndex, string sceneName)
-        {
-            Time.timeScale = 1f;
-            currentScene = sceneName;
-        }
-
         private void saveFile(string textToSave, string file)
         {
             FileStream fs = File.Create(file);
@@ -589,7 +610,14 @@ namespace TwitchChatInGame
         private void Save()
         {
             showScreen = (bool)TwitchChatInGame.Settings[0].SavedValue;
-            if ((!showScreen) && (activeScreen != null)) { activeScreen.SetActive(false); }
+            if ((!showScreen) && (activeScreen != null))
+            {
+                activeScreen.SetActive(false);
+            }
+            else
+            {
+                UpdateChatLog();
+            }
             int pastWhereToPinChat = whereToPinChat;
             whereToPinChat = (int)TwitchChatInGame.Settings[1].SavedValue;
             overrideChatPosition = (bool)TwitchChatInGame.Settings[2].SavedValue;
@@ -692,13 +720,13 @@ namespace TwitchChatInGame
                     newScale = new Vector3(0.005f, 0.005f, 0.005f);
                     break;
                 case 1: //Left Hand
-                    newParent = PlayerManager.instance.localPlayer.Controller.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(4).GetChild(0).GetChild(1).GetChild(0).GetChild(0).GetChild(0);
+                    newParent = PlayerManager.instance.localPlayer.Controller.PlayerScaling.rigDefinition.LeftHandDefinition.Transform;
                     newPosition = new Vector3(0.1f, 0f, 0f);
                     newRotation = Quaternion.Euler(0f, 270f, 30f);
                     newScale = new Vector3(0.0005f, 0.0005f, 0.0005f);
                     break;
                 case 2: //Right Hand
-                    newParent = PlayerManager.instance.localPlayer.Controller.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(4).GetChild(0).GetChild(2).GetChild(0).GetChild(0).GetChild(0);
+                    newParent = PlayerManager.instance.localPlayer.Controller.PlayerScaling.rigDefinition.RightHandDefinition.Transform;
                     newPosition = new Vector3(-0.1f, 0f, 0f);
                     newRotation = Quaternion.Euler(0f, 270f, 30f);
                     newScale = new Vector3(-0.0005f, 0.0005f, 0.0005f);
@@ -798,8 +826,11 @@ namespace TwitchChatInGame
 
         private static void UpdateChatLog()
         {
-            chatLog.Add(chatEntries[0].Sender + ": " + chatEntries[0].Message);
-            while (chatLog.Count > 5) { chatLog.RemoveAt(0); }
+            if (chatEntries.Count > 0)
+            {
+                chatLog.Add(chatEntries[0].Sender + ": " + chatEntries[0].Message);
+                while (chatLog.Count > 5) { chatLog.RemoveAt(0); }
+            }
             if (activeScreen != null)
             {
                 string chat = "";
@@ -815,25 +846,8 @@ namespace TwitchChatInGame
             }
         }
 
-        [HarmonyPatch(typeof(PlayerController), "Initialize", new Type[] { typeof(Player) })]
-        public static class playerspawn
+        private static IEnumerator<WaitForFixedUpdate> CreateScreen()
         {
-            public static void Postfix(ref PlayerController __instance, ref Player player)
-            {
-                try
-                {
-                    if (player.Controller.controllerType != ControllerType.Local) { }
-                }
-                catch { return; }
-                MelonCoroutines.Start(CreateScreen(__instance));
-            }
-        }
-
-        private static IEnumerator CreateScreen(PlayerController playerController)
-        {
-            Player player = playerController.assignedPlayer;
-            yield return new WaitForSeconds(1f);
-            if ((playerController == null) || (player == null) || (player.Controller == null) || (player.Controller.controllerType != ControllerType.Local)) { yield break; }
             activeScreen = GameObject.Instantiate(screen);
             yield return new WaitForFixedUpdate();
             chatTMP = activeScreen.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
@@ -846,7 +860,7 @@ namespace TwitchChatInGame
             chatToggles[0].layer = 22;
             Component.DestroyImmediate(chatToggles[0].GetComponent<MeshRenderer>());
             chatToggles[0].GetComponent<SphereCollider>().isTrigger = true;
-            chatToggles[0].transform.parent = PlayerManager.instance.localPlayer.Controller.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(4).GetChild(0).GetChild(1).GetChild(0).GetChild(0).GetChild(0);
+            chatToggles[0].transform.parent = PlayerManager.instance.localPlayer.Controller.PlayerScaling.rigDefinition.LeftHandDefinition.Transform;
             chatToggles[0].transform.localPosition = new Vector3(0.03f, 0f, 0f);
             chatToggles[0].transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
             chatToggles[0].transform.localScale = new Vector3(0.075f, 0.075f, 0.075f);
@@ -856,41 +870,59 @@ namespace TwitchChatInGame
             chatToggles[1].layer = 22;
             Component.DestroyImmediate(chatToggles[1].GetComponent<MeshRenderer>());
             chatToggles[1].GetComponent<SphereCollider>().isTrigger = true;
-            chatToggles[1].transform.parent = PlayerManager.instance.localPlayer.Controller.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(4).GetChild(0).GetChild(2).GetChild(0).GetChild(0).GetChild(0);
+            chatToggles[1].transform.parent = PlayerManager.instance.localPlayer.Controller.PlayerScaling.rigDefinition.RightHandDefinition.Transform;
             chatToggles[1].transform.localPosition = new Vector3(-0.03f, 0f, 0f);
             chatToggles[1].transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
             chatToggles[1].transform.localScale = new Vector3(0.075f, 0.075f, 0.075f);
             chatToggles[1].AddComponent<HandChecker>();
             MelonCoroutines.Start(ScreenFade());
             MelonCoroutines.Start(MoveScreenIfNeeded());
+            UpdateChatLog();
             yield break;
         }
 
         private static IEnumerator MoveScreenIfNeeded()
         {
-            Transform playerPos = PlayerManager.instance.localPlayer.Controller.gameObject.transform.GetChild(2).GetChild(0).GetChild(0);
+
+            Transform playerPos = null;
+            while (playerPos == null)
+            {
+                try
+                {
+                    playerPos = PlayerManager.instance.localPlayer.Controller.PlayerCamera.transform;
+                }
+                catch { }
+                if (playerPos == null)
+                {
+                    yield return new WaitForFixedUpdate();
+                }
+            }
             CreateScreenSpots();
             while ((activeScreen != null) && (whereToPinChat == 0))
             {
-                if (showScreen) { activeScreen.SetActive(true); }
-                int closest = -1;
-                float distance = 100;
-                for (int i = 0; i < screenSpots.Count; i++)
+                try
                 {
-                    float measuredDistance = Vector3.Distance(playerPos.transform.position, screenSpots[i].transform.position);
-                    if (measuredDistance < distance)
+                    if (showScreen) { activeScreen.SetActive(true); }
+                    int closest = -1;
+                    float distance = 1000;
+                    for (int i = 0; i < screenSpots.Count; i++)
                     {
-                        closest = i;
-                        distance = measuredDistance;
+                        float measuredDistance = Vector3.Distance(playerPos.transform.position, screenSpots[i].transform.position);
+                        if (measuredDistance < distance)
+                        {
+                            closest = i;
+                            distance = measuredDistance;
+                        }
+                    }
+                    if ((screenSpots.Count > 0) && (activeScreen.transform.parent.gameObject != screenSpots[closest]))
+                    {
+                        activeScreen.transform.parent = screenSpots[closest].transform;
+                        activeScreen.transform.localPosition = overrideChatPosition ? overridePosition : Vector3.zero;
+                        activeScreen.transform.localRotation = overrideChatRotation ? overrideRotation : Quaternion.identity;
+                        activeScreen.transform.localScale = overrideChatScale ? overrideScale : new Vector3(0.005f, 0.005f, 0.005f);
                     }
                 }
-                if ((screenSpots.Count > 0) && (activeScreen.transform.parent.gameObject != screenSpots[closest]))
-                {
-                    activeScreen.transform.parent = screenSpots[closest].transform;
-                    activeScreen.transform.localPosition = overrideChatPosition ? overridePosition : Vector3.zero;
-                    activeScreen.transform.localRotation = overrideChatRotation ? overrideRotation : Quaternion.identity;
-                    activeScreen.transform.localScale = overrideChatScale ? overrideScale : new Vector3(0.005f, 0.005f, 0.005f);
-                }
+                catch { }
                 yield return new WaitForFixedUpdate();
             }
             yield break;
@@ -926,7 +958,7 @@ namespace TwitchChatInGame
                     GameObject spot0 = new GameObject();
                     spot0.name = "TwitchChatBoxSpot";
                     spot0.transform.parent = screenSpotsParent.transform;
-                    spot0.transform.position = new Vector3(-14.1509f, 5.7582f, -2.8364f);
+                    spot0.transform.position = new Vector3(-13.6509f, 5.7582f, -3.2364f);
                     spot0.transform.rotation = Quaternion.Euler(0f, 244.3657f, 0f);
                     spot0.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
                     screenSpots.Add(spot0);
@@ -941,14 +973,14 @@ namespace TwitchChatInGame
                     GameObject spot0 = new GameObject();
                     spot0.name = "TwitchChatBoxSpot";
                     spot0.transform.parent = screenSpotsParent.transform;
-                    spot0.transform.position = new Vector3(-0.5035f, 1.5563f, -2.3288f); //spawn
+                    spot0.transform.position = new Vector3(0.031f, 1.5563f, -3.0776f); //spawn
                     spot0.transform.rotation = Quaternion.Euler(0f, 280.8829f, 0f);
                     spot0.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
                     screenSpots.Add(spot0);
                     GameObject spot1 = new GameObject();
                     spot1.name = "TwitchChatBoxSpot";
                     spot1.transform.parent = screenSpotsParent.transform;
-                    spot1.transform.position = new Vector3(15.5529f, -1.9519f, -12.4259f); //left of howard
+                    spot1.transform.position = new Vector3(14.7434f, -1.7628f, -12.3979f); //left of howard
                     spot1.transform.rotation = Quaternion.Euler(0f, 62.4684f, 0f);
                     spot1.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
                     screenSpots.Add(spot1);
@@ -969,7 +1001,7 @@ namespace TwitchChatInGame
                     GameObject spot4 = new GameObject();
                     spot4.name = "TwitchChatBoxSpot";
                     spot4.transform.parent = screenSpotsParent.transform;
-                    spot4.transform.position = new Vector3(-23.8473f, 0.9042f, -21.8762f); //targets
+                    spot4.transform.position = new Vector3(-23.8473f, 0.7042f, -21.4762f); //targets
                     spot4.transform.rotation = Quaternion.Euler(0f, 258.3796f, 0f);
                     spot4.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
                     screenSpots.Add(spot4);
@@ -984,49 +1016,49 @@ namespace TwitchChatInGame
                     GameObject spot0 = new GameObject();
                     spot0.name = "TwitchChatBoxSpot";
                     spot0.transform.parent = screenSpotsParent.transform;
-                    spot0.transform.position = new Vector3(7.245f, -3.7736f, 3.8686f);
+                    spot0.transform.position = new Vector3(7.245f, -3.7736f, 3.8686f); //park upper ring
                     spot0.transform.rotation = Quaternion.Euler(0f, 63.7015f, 0f);
                     spot0.transform.localScale = Vector3.one;
                     screenSpots.Add(spot0);
                     GameObject spot1 = new GameObject();
                     spot1.name = "TwitchChatBoxSpot";
                     spot1.transform.parent = screenSpotsParent.transform;
-                    spot1.transform.position = new Vector3(-29.3567f, -4.0141f, 7.6952f);
+                    spot1.transform.position = new Vector3(-25.9785f, -2.5141f, 7.6952f); //Hoop
                     spot1.transform.rotation = Quaternion.Euler(0f, 253.9577f, 0f);
                     spot1.transform.localScale = Vector3.one;
                     screenSpots.Add(spot1);
                     GameObject spot2 = new GameObject();
                     spot2.name = "TwitchChatBoxSpot";
                     spot2.transform.parent = screenSpotsParent.transform;
-                    spot2.transform.position = new Vector3(-16.175f, -1.6388f, -17.111f);
-                    spot2.transform.rotation = Quaternion.Euler(0f, 163.0112f, 0f);
+                    spot2.transform.position = new Vector3(-29.4098f, -0.6334f, -6.1211f); //friend board
+                    spot2.transform.rotation = Quaternion.Euler(0f, 268.7148f, 0f);
                     spot2.transform.localScale = Vector3.one;
                     screenSpots.Add(spot2);
                     GameObject spot3 = new GameObject();
                     spot3.name = "TwitchChatBoxSpot";
                     spot3.transform.parent = screenSpotsParent.transform;
-                    spot3.transform.position = new Vector3(22.8701f, -1.7166f, -9.9974f);
-                    spot3.transform.rotation = Quaternion.Euler(0f, 78.1961f, 0f);
-                    spot3.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+                    spot3.transform.position = new Vector3(-6.877f, -17.8891f, 19.2793f); //under ring
+                    spot3.transform.rotation = Quaternion.Euler(0f, 346.0926f, 0f);
+                    spot3.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
                     screenSpots.Add(spot3);
                     GameObject spot4 = new GameObject();
                     spot4.name = "TwitchChatBoxSpot";
                     spot4.transform.parent = screenSpotsParent.transform;
-                    spot4.transform.position = new Vector3(34.8067f, 3.35f, 4.1303f);
-                    spot4.transform.rotation = Quaternion.Euler(0f, 78.1961f, 0f);
+                    spot4.transform.position = new Vector3(35.8078f, 5.8846f, 5.5854f); //top boulder balls
+                    spot4.transform.rotation = Quaternion.Euler(0f, 113.9208f, 0f);
                     spot4.transform.localScale = Vector3.one;
                     screenSpots.Add(spot4);
                     GameObject spot5 = new GameObject();
                     spot5.name = "TwitchChatBoxSpot";
                     spot5.transform.parent = screenSpotsParent.transform;
-                    spot5.transform.position = new Vector3(20.7936f, 5.5078f, 27.1216f);
+                    spot5.transform.position = new Vector3(21.0445f, 5.5078f, 29.0016f); //slide
                     spot5.transform.rotation = Quaternion.Euler(0f, 43.9476f, 0f);
                     spot5.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
                     screenSpots.Add(spot5);
                     GameObject spot6 = new GameObject();
                     spot6.name = "TwitchChatBoxSpot";
                     spot6.transform.parent = screenSpotsParent.transform;
-                    spot6.transform.position = new Vector3(-6.2776f, -1.6804f, 24.1848f);
+                    spot6.transform.position = new Vector3(-3.7776f, -1.1804f, 25.0848f); //left stairs
                     spot6.transform.rotation = Quaternion.Euler(0f, 320.6074f, 0f);
                     spot6.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
                     screenSpots.Add(spot6);
@@ -1043,34 +1075,42 @@ namespace TwitchChatInGame
 
         private static IEnumerator ScreenFade()
         {
-            Transform playerPos = PlayerManager.instance.localPlayer.Controller.gameObject.transform.GetChild(2).GetChild(0).GetChild(0);
-            while (activeScreen != null)
+            Transform playerPos = PlayerManager.instance.localPlayer.Controller.PlayerCamera.transform;
+            while (activeScreen != null && playerPos != null)
             {
-                Vector3 forwardVector = playerPos.forward.normalized;
-                Vector3 directionToObject = (activeScreen.transform.position - playerPos.position).normalized;
-                float dotProduct = Vector3.Dot(forwardVector, directionToObject);
-                float angle = Mathf.Acos(dotProduct) * Mathf.Rad2Deg; // Convert radians to degrees
-                float newAlpha = 0;
-                if (angle <= 20f) { newAlpha = 1f; }
-                else if (angle >= 45f) { newAlpha = 0f; }
-                else { newAlpha = 1.8f - (0.04f * angle); }
-                float inverter = -1;
-                if (activeScreen.transform.parent == null) { inverter = -1; }
-                else if (activeScreen.transform.parent.name == "Bone_HandAlpha_L") { inverter = -1; }
-                else if (activeScreen.transform.parent.name == "Bone_HandAlpha_R") { inverter = 1; }
-                Vector3 forwardVector2 = (activeScreen.transform.forward * inverter).normalized;
-                Vector3 directionToObject2 = (playerPos.transform.position - activeScreen.transform.position).normalized;
-                float dotProduct2 = Vector3.Dot(forwardVector2, directionToObject2);
-                float angle2 = Mathf.Acos(dotProduct2) * Mathf.Rad2Deg; // Convert radians to degrees
-                if (angle2 >= 90) { newAlpha = 0f; }
-                else if (angle2 > 60)
+                try
                 {
-                    float newAlpha2 = 3f - ((1f / 30f) * angle2);
-                    if (newAlpha > newAlpha2) { newAlpha = newAlpha2; }
+                    Vector3 forwardVector = playerPos.forward.normalized;
+                    Vector3 directionToObject = (activeScreen.transform.position - playerPos.position).normalized;
+                    float dotProduct = Vector3.Dot(forwardVector, directionToObject);
+                    float angle = Mathf.Acos(dotProduct) * Mathf.Rad2Deg; // Convert radians to degrees
+                    float newAlpha = 0;
+                    if (angle <= 20f) { newAlpha = 1f; }
+                    else if (angle >= 45f) { newAlpha = 0f; }
+                    else { newAlpha = 1.8f - (0.04f * angle); }
+                    float inverter = -1;
+                    if (activeScreen.transform.parent == null) { inverter = -1; }
+                    else if (activeScreen.transform.parent.name == "Bone_HandAlpha_L") { inverter = -1; }
+                    else if (activeScreen.transform.parent.name == "Bone_HandAlpha_R") { inverter = 1; }
+                    Vector3 forwardVector2 = (activeScreen.transform.forward * inverter).normalized;
+                    Vector3 directionToObject2 = (playerPos.transform.position - activeScreen.transform.position).normalized;
+                    float dotProduct2 = Vector3.Dot(forwardVector2, directionToObject2);
+                    float angle2 = Mathf.Acos(dotProduct2) * Mathf.Rad2Deg; // Convert radians to degrees
+                    if (angle2 >= 90) { newAlpha = 0f; }
+                    else if (angle2 > 60)
+                    {
+                        float newAlpha2 = 3f - ((1f / 30f) * angle2);
+                        if (newAlpha > newAlpha2) { newAlpha = newAlpha2; }
+                    }
+                    rawImage.color = new Color(rawImage.color.r, rawImage.color.g, rawImage.color.b, newAlpha);
+                    chatTMP.color = new Color(chatTMP.color.r, chatTMP.color.g, chatTMP.color.b, newAlpha);
                 }
-                rawImage.color = new Color(rawImage.color.r, rawImage.color.g, rawImage.color.b, newAlpha);
-                chatTMP.color = new Color(chatTMP.color.r, chatTMP.color.g, chatTMP.color.b, newAlpha);
+                catch { yield break; }
                 yield return new WaitForFixedUpdate();
+                if (activeScreen == null || playerPos == null)
+                {
+                    yield break;
+                }
             }
             yield break;
         }

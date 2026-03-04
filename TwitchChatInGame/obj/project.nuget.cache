@@ -1,9 +1,16 @@
 {
   "version": 2,
-  "dgSpecHash": "c2cUwq3bMKk=",
+  "dgSpecHash": "r38VKAdm+p8=",
   "success": true,
   "projectFilePath": "C:\\Users\\austi\\source\\repos\\TwitchChatInGame\\TwitchChatInGame\\TwitchChatInGame.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\austi\\.nuget\\packages\\google.apis\\1.70.0\\google.apis.1.70.0.nupkg.sha512",
+    "C:\\Users\\austi\\.nuget\\packages\\google.apis.auth\\1.70.0\\google.apis.auth.1.70.0.nupkg.sha512",
+    "C:\\Users\\austi\\.nuget\\packages\\google.apis.core\\1.70.0\\google.apis.core.1.70.0.nupkg.sha512",
+    "C:\\Users\\austi\\.nuget\\packages\\google.apis.youtube.v3\\1.70.0.3847\\google.apis.youtube.v3.1.70.0.3847.nupkg.sha512",
+    "C:\\Users\\austi\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
+    "C:\\Users\\austi\\.nuget\\packages\\system.codedom\\7.0.0\\system.codedom.7.0.0.nupkg.sha512",
+    "C:\\Users\\austi\\.nuget\\packages\\system.management\\7.0.2\\system.management.7.0.2.nupkg.sha512",
     "C:\\Users\\austi\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\6.0.36\\microsoft.windowsdesktop.app.ref.6.0.36.nupkg.sha512",
     "C:\\Users\\austi\\.nuget\\packages\\microsoft.netcore.app.ref\\6.0.36\\microsoft.netcore.app.ref.6.0.36.nupkg.sha512",
     "C:\\Users\\austi\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\6.0.36\\microsoft.aspnetcore.app.ref.6.0.36.nupkg.sha512"
