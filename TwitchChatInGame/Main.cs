@@ -19,7 +19,7 @@ namespace TwitchChatInGame
     public static class BuildInfo
     {
         public const string ModName = "TwitchChatInGame";
-        public const string ModVersion = "1.3.1";
+        public const string ModVersion = "1.3.2";
         public const string Author = "UlvakSkillz";
     }
 
@@ -470,6 +470,7 @@ namespace TwitchChatInGame
             originalScale = activeScreen.transform.localScale;
             if (active) { activeScreen.transform.localScale = Vector3.zero; }
             activeScreen.SetActive(true);
+            UpdateChatLog();
             for (int i = 0; i < 40; i++)
             {
                 try
@@ -902,7 +903,11 @@ namespace TwitchChatInGame
             {
                 try
                 {
-                    if (showScreen) { activeScreen.SetActive(true); }
+                    if (showScreen)
+                    {
+                        activeScreen.SetActive(true);
+                        UpdateChatLog();
+                    }
                     int closest = -1;
                     float distance = 1000;
                     for (int i = 0; i < screenSpots.Count; i++)
