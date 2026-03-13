@@ -19,7 +19,7 @@ namespace TwitchChatInGame
     public static class BuildInfo
     {
         public const string ModName = "TwitchChatInGame";
-        public const string ModVersion = "1.3.2";
+        public const string ModVersion = "1.3.3";
         public const string Author = "UlvakSkillz";
     }
 
@@ -813,7 +813,7 @@ namespace TwitchChatInGame
                     if (clear)
                     {
                         CheckCommands();
-                        UpdateChatLog();
+                        UpdateChatLog(true);
                     }
                     chatEntries.RemoveAt(0);
                 }
@@ -825,9 +825,9 @@ namespace TwitchChatInGame
             yield break;
         }
 
-        private static void UpdateChatLog()
+        private static void UpdateChatLog(bool addMsgToLog = false)
         {
-            if (chatEntries.Count > 0)
+            if (addMsgToLog && (chatEntries.Count > 0))
             {
                 chatLog.Add(chatEntries[0].Sender + ": " + chatEntries[0].Message);
                 while (chatLog.Count > 5) { chatLog.RemoveAt(0); }
@@ -851,7 +851,9 @@ namespace TwitchChatInGame
         {
             activeScreen = GameObject.Instantiate(screen);
             yield return new WaitForFixedUpdate();
-            chatTMP = activeScreen.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            Transform chatText = activeScreen.transform.GetChild(1);
+            chatText.localPosition = new Vector3(215, -380, 0);
+            chatTMP = chatText.GetComponent<TextMeshProUGUI>();
             rawImage = activeScreen.transform.GetChild(0).GetComponent<RawImage>();
             SetActiveScreenTransform();
             activeScreen.SetActive(lastKnownScreenActiveState);
@@ -948,8 +950,8 @@ namespace TwitchChatInGame
                     GameObject spot0 = new GameObject();
                     spot0.name = "TwitchChatBoxSpot";
                     spot0.transform.parent = screenSpotsParent.transform;
-                    spot0.transform.position = new Vector3(0f, 3.3564f, -17.784f);
-                    spot0.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+                    spot0.transform.position = new Vector3(-4.5f, 3.35f, -17.784f);
+                    spot0.transform.rotation = Quaternion.Euler(0f, 195f, 0f);
                     spot0.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
                     screenSpots.Add(spot0);
                 }
@@ -1165,7 +1167,7 @@ namespace TwitchChatInGame
             }
         }
 
-        public static void Log(string msg)
+        internal static void Log(string msg)
         {
             MelonLogger.Msg(msg);
         }

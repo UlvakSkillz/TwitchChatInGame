@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using MelonLoader;
+using System.Net.Sockets;
 namespace TwitchTools
 {
     public class TwitchChatHandle : IDisposable
@@ -77,7 +78,6 @@ namespace TwitchTools
             //Get chat message
             startIndex = read.IndexOf(":", 1) + 1;
             string chatMessage = read.Substring(startIndex);
-
             return new TwitchChatEntry(chatSender,chatMessage);
         }
 
